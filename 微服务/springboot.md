@@ -2,6 +2,8 @@
 
 #### Spring boot 的前世今生
 
+------
+
 spring Framework AOP 、 IOC/DI
 
 Spring 万能胶
@@ -72,6 +74,10 @@ Springboot即Spring framework的一个脚手架
 - Spring Boot CLI(提供springboot 命令行操作的功能， 用groovy脚本) 有专用的客户端
 
 #### Spring注解驱动的发展过程
+
+------
+
+
 
 > Springboot 的特性依赖于 Spring注解驱动
 
@@ -178,6 +184,10 @@ public class Demo1{
 
 #### Spring3.x版本中，集成Redis或者mybatis
 
+------
+
+
+
 - 创建一个配置类
 - @bean注解来声明一个bean
 
@@ -247,6 +257,10 @@ public class TestMain{
 
 #### Spring boot 的注解驱动
 
+------
+
+
+
 ##### Spring3.x
 
 无配置化的方式实现Bean的装配
@@ -294,6 +308,8 @@ public class TestMain{
 
 ##### Spring 5.x
 
+------
+
 @Indexed 用来提升性能的
 
 
@@ -302,11 +318,15 @@ public class TestMain{
 
 ##### SPring IOC bean的装载
 
+------
+
+
+
 - xml
 - Configuration
 - Enable
 
-![image-20201228153326213](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201228153326213.png)
+![image-20201229143150511](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201229143150511.png)
 
 ```java
 public class RedisController {
@@ -328,18 +348,218 @@ public class RedisController {
 
 ##### Spring的动态Bean的装载
 
+------
 
 
-- ImportSelector
-- Registator
+
+- ImportSelector ：DeferredImportSelector
+- Registator: ImportBeanDefinitionRegistrar
+
+springBoot用的AutoConfigurationImportSelector动态加载配置类
+
+```java
+public class AutoConfigurationImportSelector implements DeferredImportSelector, BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered{......}
+```
+
+ImportSelector示例：如何动态扫描配置类的，比如：配置了Redis就可以直接注入@Autowired RedisTemplate redisTemplate; 
+
+所有的starter应用下classpath:META-INF/spring.factories文件 ， 存在扫描配置类。
+
+```java
+public class JWRedisTemplate { }
+------------------------------------------------------------
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class JWReidsCOnfiguration {
+    @Bean
+    public JWRedisTemplate redisTemplate(){
+        return new JWRedisTemplate();
+    }
+}
+------------------------------------------------------------
+public class JWSqlSessionTemplate {}
+------------------------------------------------------------
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class JWMybatisConfiguration {
+    @Bean
+    public JWSqlSessionTemplate jwSqlSessionTemplate(){
+        return new JWSqlSessionTemplate();
+    }
+}
+-------------------------------------------------------------
+public class JWDefineImportSelector implements ImportSelector {
+    @Override
+    public String[] selectImports(AnnotationMetadata annotationMetadata) {
+        // 动态导入bean ， 告诉了Spring， 两个配置类在哪里
+        
+        //在这里去加载所有的配置类就行？
+        //通过某种机制去完成指定路径的配置类的扫描就行？
+        //package.class.className
+        return new String[]{
+JWMybatisConfiguration.class.getName() , JWReidsCOnfiguration.class.getName()
+        };
+    }
+}
+----------------------------------------------------------------
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Import(JWDefineImportSelector.class)
+public @interface EnableConfiguration {}
+-----------------------------------------------------------------
+@SpringBootApplication
+@EnableConfiguration
+public class SpringBootExampleApplication {
+	public static void main(String[] args) {
+	ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(SpringBootExampleApplication.class, args);
+System.out.println(configurableApplicationContext.getBean(JWRedisTemplate.class));
+System.out.println(configurableApplicationContext.getBean(JWSqlSessionTemplate.class));
+    }
+}
+```
+
+
+
+#### SPringFactoriesLoader(SPI)
+
+------
+
+spring.factories里面存放配置类扫描的路径。
+
+![image-20201229144333359](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201229144333359.png)
+
+
+
+#### SPI机制
+
+------
+
+Service provider interface
+
+满足一下条件：
+
+- 需要在classpath目录下创建一个META-INF/services
+- 在该目录下创建一个扩展点的全路径名
+  - 文件中填写这个扩展的实现
+  - 文件编码格式UTF-8
+
+- ServiceLoader去进行加载
+
+
+
+扩展链实现
+
+SPI的扩展定义组件，第三方去扩展 比如：
+
+![image-20201229145906570](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201229145906570.png)
+
+实例：
+
+//DataBaseDriverSpi工程==============================================start
+
+```java
+public interface DataBaseDriver {
+
+    String buildConnect(String host);
+} 
+```
+
+//DataBaseDriverSpi工程==============================================end
+
+//驱动工程mysqlDriverSPI===========================================start
+
+```java
+public class MysqlDriver  implements DataBaseDriver {
+
+    @Override
+    public String buildConnect(String s) {
+        return "Mysql的驱动实现：" +s;
+    }
+}
+```
+
+POM.XML
+
+```xml
+    <dependency>
+      <groupId>com.spi</groupId>
+      <artifactId>DataBaseDriverSpi</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+```
+
+在resources下建对应的配置文件 ：META-INF.services
+
+文件名要与DataBaseDriver包名一致。
+
+文件名：com.spi.DataBaseDriver
+
+```
+com.spi.mysql.MysqlDriver
+```
+
+//驱动工程mysqlDriverSPI===========================================end
+
+//驱动应用程序appSPI==============================================start
+
+```java
+public class App
+{
+    public static void main( String[] args )
+    {
+        ServiceLoader<DataBaseDriver> serviceLoader = ServiceLoader.load(DataBaseDriver.class);
+        for(DataBaseDriver dataBaseDriver : serviceLoader){
+            System.out.println(dataBaseDriver.buildConnect("test"));
+        }
+        System.out.println( "Hello World!" );
+    }
+}
+```
+
+控制台打印：
+
+![image-20201229152932468](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201229152932468.png)
+
+pom.xml
+
+```java
+<dependency>
+    <groupId>com.spi.mysql</groupId>
+    <artifactId>mysql-Driver</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+    <groupId>com.spi</groupId>
+    <artifactId>DataBaseDriverSpi</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+//驱动应用程序appSPI==============================================end
 
 #### Spring boot 自动装配
 
+------
 
+THE END
+
+#### 条件控制
+
+------
+
+对于官方的starter组件，
+
+- 官方包spring-boot-starter-xxx
+- 第三方包 xxx-spring-boot-starter
 
 #### Starter组件的原理
 
-
+------
 
 
 
