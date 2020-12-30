@@ -15,15 +15,16 @@ public class RedissonAutoConfiguration {
 
 
     @Bean
-    RedissonClient redissonClient(RedissonProperties redissonProperties) {
+    RedissonClient redissonClient( RedissonProperties redissonProperties) {
         Config config = new Config();
         String prefix = "redis://";
         if(redissonProperties.isSsl()){
-            prefix = "redis://";
+            prefix = "rediss://";
         }
 
         config.useSingleServer()
-                .setAddress(redissonProperties.getHost() + ":" + redissonProperties.getPort())
+                .setAddress(prefix+redissonProperties.getHost() + ":" + redissonProperties.getPort())
+                .setPassword("Xinshikong")
                 .setIdleConnectionTimeout(redissonProperties.getTimeout());
 
         return Redisson.create(config);
