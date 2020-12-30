@@ -581,7 +581,24 @@ THE END
      </dependency>
 ```
 
+additional-spring-configuration-metadata.json:可以配置application.properties配置文件中的提示
 
+```json
+"properties": [
+    {
+      "name": "debug",
+      "type": "java.lang.Boolean",
+      "description": "Enable debug logs.",
+      "sourceType": "org.springframework.boot.context.logging.LoggingApplicationListener",
+      "defaultValue": false
+    },
+    {
+      "name": "logging.config",
+      "type": "java.lang.String",
+      "description": "Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.",
+      "sourceType": "org.springframework.boot.context.logging.LoggingApplicationListener"
+    }
+```
 
 
 
