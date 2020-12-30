@@ -557,13 +557,35 @@ THE END
 - 官方包spring-boot-starter-xxx
 - 第三方包 xxx-spring-boot-starter
 
+#### 条件装配
+
+- 在类上加注解@ConditionalOnClass
+- 在/resourses//META-INF/spring-autoconfigure-metadata.properties中加，没有新建，示例：com.jiawy.autoconfiguration.ConditionalOnClass=com.jiawy.DemoClass
+
 #### Starter组件的原理
 
 ------
 
 
 
+自动装配与Starter组件有非常强的关联性。
 
+ optional标签为true不会传递引用
+
+```java
+ <dependency>
+     <groupId>org.springframework.boot</groupId>
+     <artifactId>spring-boot-starter-parent</artifactId>
+     <version>2.4.1</version>
+     <optional>true</optional>
+     </dependency>
+```
+
+
+
+
+
+#### Actuator
 
 
 
