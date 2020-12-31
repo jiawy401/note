@@ -581,7 +581,7 @@ THE END
      </dependency>
 ```
 
-additional-spring-configuration-metadata.json:可以配置application.properties配置文件中的提示
+**additional-spring-configuration-metadata.json:可以配置application.properties配置文件中的提示**
 
 ```json
 "properties": [
