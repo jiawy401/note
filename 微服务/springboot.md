@@ -1,3 +1,5 @@
+[TOC]
+
 
 
 #### Spring boot 的前世今生
@@ -602,23 +604,169 @@ THE END
 
 
 
-#### Actuator
+#### Actuator（监控）
+
+```xml
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator</artifactId>
+        </dependency>
+```
+
+启动所有的监控信息需要在application.properties配置
+
+```properties
+management.endpoints.web.exposure.include=* //导入所有Actuator监控的组件
+```
+
+localhost:8080/actuator/health 可以看健康状态
+
+localhost:8080/actuator/info 可以看系统信息
+
+localhost:8080/actuator/info 查看环境信息（端口、系统一些环境变量的配置）
+
+localhost:8080/actuator/beans 查看所加载的bean
+
+......等等
+
+都可以在以下链接查看：
+
+https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints；
+
+检测自己应用信息，需要继承AbstractHealthIndicator实现检测的机制，doHealthCheck
+
+```java
+public class RedisHealthIndicator extends AbstractHealthIndicator
+```
 
 
 
+#### Metrics
+
+------
+
+提供了当前应用里的指标。
+
+- JVM（垃圾收集器的信息、内存、堆）
+- 系统层面的（运行时间、平均负载、处理器信息）
+- 线程池的状态
+- tomcat会话信息
+- PHeuthous /Grafana(图标展示)
+
+#### logger
+
+------
+
+/actuator/loggers 
+
+/actuator/loggers/ROOT
+
+```json
+{
+    "configuredLevel" : 'DEBUG'
+}
+```
+
+application.properties  
+
+info.app.name=@projectName@
+
+![image-20210104095858544](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20210104095858544.png)
+
+#### Actuator有两种形态的监控
+
+------
+
+- http(web)
+- jmx
+
+#### JMX(Java Management Extensions)
+
+------
+
+它提供了对java应用程序以及JVM的一个监控的功能。
+
+比如服务器上的资源情况，内存，线程的使用情况。
+
+示例：
+
+application.properties
+
+```xml
+management.endpoints.jmx.exposure.include=*
+```
 
 
 
+```java
+
+public interface SystemInfoMBean {
+    /**
+     *以get开头是属性 ， 没有get开头的是操作；
+     */
+    int getCpuCore();
+    long totalMemory();
+    void shutdown();
+    String getInCOunt(String count);
+}
+
+public class SystemInfo implements SystemInfoMBean {
+    @Override
+    public int getCpuCore() {
+        return Runtime.getRuntime().availableProcessors();
+    }
+    @Override
+    public long totalMemory() {
+        return Runtime.getRuntime().totalMemory();
+    }
+    @Override
+    public void shutdown() {
+        System.exit(0);
+    }
+    @Override
+    public String getInCOunt(String count) {
+        return count;
+    }
+}
+
+public class JMXMain {
+
+    public static void main(String[] args) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException, IOException {
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        ObjectName objectName = new ObjectName("com.actuator.actuatorjiawy:type=SystemInfo");
+        SystemInfo systemInfo = new SystemInfo();
+        mBeanServer.registerMBean(systemInfo,objectName);
+        System.in.read();
+    }
+}
+```
+
+可以在jconsole里观察MBean
 
 
 
+#### SpringBoot的信息，可以发布到Prometheus+Grafana
 
+------
 
+##### Prometheus
 
+------
 
+- 开源的监控系统。数据采集：http://localhost:8080/actuator/prometheus
+- time-series时序数据库 存储metrics
+- 可视化 ：http://localhost:9090
 
+vim prometheus.yml
 
+![image-20210104142318468](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20210104142318468.png)
 
+##### Grafana
 
+------
 
+提供图标展示。
+
+- 先设置数据源 set/datasource
+- Import可以导入响应的图标组件。
 
