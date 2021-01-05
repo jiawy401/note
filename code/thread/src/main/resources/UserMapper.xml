@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jiawy.springbootthread.persistence.Mapper.UserMapper">
 
-    <insert id="insert" parameterType="com.jiawy.springbootthread.persistence.model.User">
-        insert into user(name) values (#{name,jdbcType=VARCHAR})
+    <insert id="insert">
+        insert into user(name) values (#{user.name,jdbcType=VARCHAR})
     </insert>
 </mapper>
