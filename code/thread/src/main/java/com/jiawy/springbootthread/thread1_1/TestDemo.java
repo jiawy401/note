@@ -1,4 +1,4 @@
-package com.jiawy.springbootthread.thread1;
+package com.jiawy.springbootthread.thread1_1;
 
 public class TestDemo extends Thread{
 

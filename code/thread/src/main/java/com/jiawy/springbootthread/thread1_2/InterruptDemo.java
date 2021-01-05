@@ -1,4 +1,4 @@
-package com.jiawy.springbootthread.thread2;
+package com.jiawy.springbootthread.thread1_2;
 
 public class InterruptDemo implements  Runnable
 {
