@@ -17,7 +17,7 @@ public class App {
 
     public static void main(String[] args) throws InterruptedException {
         for(int i = 0 ;i < 1000 ; i ++){
-            new Thread(()-> App.incr()).start();
+            new Thread(()-> App.incr()).start();    //5595008供热办
         }
 
         Thread.sleep(3000); //保证所有线程执行结束
