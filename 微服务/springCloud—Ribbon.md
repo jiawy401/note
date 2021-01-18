@@ -153,21 +153,21 @@ public class TestController{
 }
 ```
 
-![image-20201216170454890](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201216170454890.png)
+![image-20201216170454890](processon\image-20201216170454890.png)
 
 
 
-![image-20201216172455473](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201216172455473.png)
+![image-20201216172455473](processon\image-20201216172455473.png)
 
 
 
-![image-20201216172400906](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201216172400906.png)
+![image-20201216172400906](processon\image-20201216172400906.png)
 
-![image-20201217130742261](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201217130742261.png)
+![image-20201217130742261](processon\image-20201217130742261.png)
 
-![image-20201217132451624](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201217132451624.png)
+![image-20201217132451624](processon\image-20201217132451624.png)
 
-![image-20201217132801987](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201217132801987.png)
+![image-20201217132801987](processon\image-20201217132801987.png)
 
 
 
@@ -302,7 +302,7 @@ protected final ClientHttpResponse executeInternal(HttpHeaders headers, byte[] b
 
 ```
 
-![image-20201225141544472](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201225141544472.png)
+![image-20201225141544472](processon\image-20201225141544472.png)
 
 码3
 
@@ -318,12 +318,13 @@ public final ClientHttpResponse execute() throws IOException {
 
 ```
 
-![image-20201225145013623](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201225145013623.png)
+![image-20201225145013623](processon\image-20201225145013623.png)
 
 RibbonClientConfiguration.java
 
-![image-20201225145327703](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201225145327703.png)
+![image-20201225145327703](processon\image-20201225145327703.png)
 
-![image-20201225152132122](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201225152132122.png)
+![image-20201225152132122](processon\image-20201225152132122.png)
 
 setPingInertval 会不断的 检查服务列表
+

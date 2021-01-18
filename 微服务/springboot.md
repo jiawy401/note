@@ -50,7 +50,7 @@ Springboot即Spring framework的一个脚手架
 
 可以集成的容器有以下：
 
-![image-20201228125835321](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201228125835321.png)
+![image-20201228125835321](processon\image-20201228125835321.png)
 
 -  只要依赖的spring-boot-starter-web的jar， 就会自动内置一个tomcat容器（替换）
 - 项目结构
@@ -182,7 +182,7 @@ public class Demo1{
 
 - Enable模块驱动
 
-<img src="C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201228142122844.png" alt="image-20201228142122844" style="zoom:67%;" />
+<img src="processon\image-20201228142122844.png" alt="image-20201228142122844" style="zoom:67%;" />
 
 #### Spring3.x版本中，集成Redis或者mybatis
 
@@ -230,7 +230,7 @@ public class TestMain{
 
 使用Enable
 
-![image-20201228144149843](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201228144149843.png)
+![image-20201228144149843](processon\image-20201228144149843.png)
 
 ```java
 @ComponentScan("扫描路径")
@@ -328,7 +328,7 @@ public class TestMain{
 - Configuration
 - Enable
 
-![image-20201229143150511](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201229143150511.png)
+![image-20201229143150511](processon\image-20201229143150511.png)
 
 ```java
 public class RedisController {
@@ -432,7 +432,7 @@ System.out.println(configurableApplicationContext.getBean(JWSqlSessionTemplate.c
 
 spring.factories里面存放配置类扫描的路径。
 
-![image-20201229144333359](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201229144333359.png)
+![image-20201229144333359](processon\image-20201229144333359.png)
 
 
 
@@ -457,7 +457,7 @@ Service provider interface
 
 SPI的扩展定义组件，第三方去扩展 比如：
 
-![image-20201229145906570](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201229145906570.png)
+![image-20201229145906570](processon\image-20201229145906570.png)
 
 实例：
 
@@ -524,7 +524,7 @@ public class App
 
 控制台打印：
 
-![image-20201229152932468](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20201229152932468.png)
+![image-20201229152932468](processon\image-20201229152932468.png)
 
 pom.xml
 
@@ -671,7 +671,7 @@ application.properties
 
 info.app.name=@projectName@
 
-![image-20210104095858544](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20210104095858544.png)
+![image-20210104095858544](processon\image-20210104095858544.png)
 
 #### Actuator有两种形态的监控
 
@@ -759,7 +759,7 @@ public class JMXMain {
 
 vim prometheus.yml
 
-![image-20210104142318468](C:\Users\xsk\AppData\Roaming\Typora\typora-user-images\image-20210104142318468.png)
+![image-20210104142318468](processon\image-20210104142318468.png)
 
 ##### Grafana
 
