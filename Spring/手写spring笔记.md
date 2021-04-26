@@ -632,9 +632,172 @@ private void doDispatch(HttpServletRequest req , HttpServletResponse resp) throw
 
 ### 实现V3版本
 
+首先改造HandlerMapping，在真实的Spring源码中，HandlerMapping其实是一个List而非Map。List中的元素是一个自定义的类型。
 
+```java
+/**
+Handler记录Controller中的RequestMapping和Method的对应关系
+内部类
+*/
+private class Handler{
+    protected Object controller ; //保存方法对应的实例
+    protected Method method ;     //保存映射的方法
+    protected Pattern pattern ;   //${} url 占位符解析
+    protected Map<String , Integer> paramIndexMapping ; //参数顺序
+    /** 构造一个Handler基本的参数
+    *@param controller
+    *@Param method
+    */
+    protected Handler(Pattern pattern , Object controller, Method method){
+        this.controller = controller;
+        this.method = method;
+        this.pattern = pattern ; 
+        
+        paramIndexMapping = new HashMap<String , Integer>();
+        putParamIndexMapping(method);
+    }
+    
+    private void putParamIndexMapping (Method method){
+        //提取方法中加了注解的参数
+        Annotation[][] pa = method.getParameterAnnotations();
+        for(int i = 0 ;i < pa.length ; i ++){
+            for(Annotation a : pa[i]){
+                if(a instanceof GPRequestParam){
+                    String paramName = ((GPRequestParam) a).value();
+                    if(!"".equals(paramName.trim())){
+                        paramIndexMapping.put(paramName , i);
+                    }
+                }
+            }
+        }
+        //提取方法中的request和response参数
+        Class<?> [] paramsTypes = method.getParameterTypes();
+        for(int i = 0 ;i < paramsTypes.length; i ++){
+            Class<?> type = paramsTypes[i];
+            if(type == HttpServletRequest.class ||
+              type == HttpServletResponse.class){
+                paramIndexMapping.put(type.getName() , i);
+            }
+        }
+    }
+    
+}
 
+```
 
+然后，优化HandlerMapping的结构，代码如下：
 
+```java
+//保存所有的Url和方法的映射关系
+private List<Handler> handlerMapping = new ArrayList<Handler>();
+```
 
+修改doInitHandlerMapping() 方法：
 
+```java
+private void doInitHandlerMapping(){
+    if(ioc.isEmpty()){return;}
+    for(Entry<String,Object> entry : ioc.entrySet()){
+        Class<?> clazz = entry.getValue().getClass();
+        if(!clazz.isAnnotationPresent(GPController.class)){continue;}
+        String url = "";
+        //获取Controller的url配置
+        if(clazz.isAnnotationPresent(GPRequestMapping.class)){
+            GPRequestMapping requestMapping = clazz.getAnnotation(GPRequestMapping.class);
+            url = requestMapping.value();
+        }
+        //获取Method的url配置
+        Method[] methods= clazz.getMethods();
+        for(Method method : methods){
+            //没有加RequestMapping 注解的直接忽略
+            if(!method.isAnnotationPresent(GPRequestMapping.class)){
+                continue;
+            }
+            //映射URL
+            GPRequestMapping requestMapping = method.getAnnotation(GPRequestMapping.class);
+            String regex = ("/" + url + requestMapping.value()).replaceAll("/+" ,"/");
+            Pattern pattern = Pattern.compile(regex);
+            handlerMapping.add(new Handler(pattern,entry.getValue(),method));
+            System.out.println("mapping " + regex + "," + method);
+        }
+    }
+}
+```
+
+修改doDispatch()方法：
+
+```java
+/**
+*匹配URL
+*@Param req
+*@param resp
+*@return 
+*/
+private viod doDispatch(HttpServletRequest req, HttpServletResponse resp)throws Exception {
+    try{
+        Handler handler = getHandler(req);
+        if(handler == null){
+            //如果没有匹配上，返回404错误
+            resp.getWriter().write("404 Not Found");
+            return ; 
+        }
+        //获取方法参数列表
+        Class<?> [] paramTypes = handler.method.getParameterTypes();
+        
+        //保存所有需要自动赋值的参数值
+        Object[] paramValues = new Object[paramTypes.length];
+        Map<String,String[]>  params = req.getParameterMap();
+        for(Entry<String , String[]> param : params.entrySet()){
+            String value = Arrays.toString(param.getValue()).replaceAll("\\[|\\]" , "").replaceAll(",\\s",",");
+            
+            //如果找到匹配的对象，则开始填充参数值
+            if(!handler.paramIndexMapping.containsKey(param.getKey())){continue;}
+            int index = handler.paramIndexMapping.get(param.getKey());
+            paramValues[index] = convert(paramTypes[index] , value);
+        }
+        //设置方法中的request和response对象
+        int  reqIndex = handler.paramIndexMapping.get(HttpServletRequest.class.getName());
+        paramValues[reqIndex] = req;
+        int respIndex = handler.paramIndexMapping.get(HttpServletResponse.class.getName());
+        paramValues[respIndex] = resp;
+        handler.method.invoke(handler.controller, paramValues);
+        
+    }catch(Exception e){
+        throw e;
+    }
+}
+
+private Handler getHandler(HttpServletRequest req) throws Exception{
+    if(handlerMapping.isEmpty()){return null;}
+    String url = req.getRequestURI();
+    String contextPath = req.getContextPath();
+    url = url.replace(contextPath , "").replaceAll("/+"  , "/");
+    for(Handler handler : handlerMapping){
+        try{
+            Matcher matcher = handler.pattern.matcher(url);
+            //如果没有匹配上继续下一个匹配
+            if(!matcher.matches()){continue;}
+            return handler ; 
+        }catch(Exception e){
+            throw e ; 
+        }
+        return null;
+    }
+}
+
+//url传过来的参数都是String类型，HTTP是基于字符串协议
+//只需要把String转换成为任意类型就好
+private Object convert(Class<?> type , String value){
+    if(Integer.class == type){
+        return Integer.valueOf(value);
+    }
+    //如果还有double或者其他类型，继续加if
+    //这时候，我们应该想到策略模式了
+    //在这里暂时不实现，希望小伙伴自己来实现
+    return value;
+}
+```
+
+在以上代码中，增加了两个方法，一个是getHandler() 方法， 主要负责处理url的正则匹配 ；  一个是convert()方法，主要负责url参数强制类型转换。
+
+![image-20210425150749080](process\image-20210425150749080.png)
