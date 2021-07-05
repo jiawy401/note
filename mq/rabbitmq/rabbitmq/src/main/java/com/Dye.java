@@ -16,16 +16,45 @@ public class Dye {
 
     public static void main(String[] args) {
 
+        System.out.println(dye("RGRGR"));
+        System.out.println(dye("GGGGGR"));
+        System.out.println(dye("RGGGGG"));
+        System.out.println(dye("GGGGG"));
     }
 
-    public int  dye(String str){
-        String[] i = new   , j = 0  ;
-        for (int k = 0; k < str.length(); k++) {
+    public static int  dye(String str){
+
+        int c = 0 ;
+        int i = 0 ;
+        int j = 0 ;
+        int m =0 ;
+        int n = 0;
+
+
+        for (int k = 0; k < str.length();   k++) {
+            char a = str.charAt(k);
+            if(a == 'R'){
+                i=+1;
+                c=+1;
+            }else{
+                i = 0 ;
+                j ++;
+            }
+
+            if(a == 'G'){
+                m =+1;
+            }else{
+                m = 0 ;
+                n ++;
+            }
 
         }
-        char[] strArr = str.toCharArray();
-
-
-        return 0 ;
+        if(i == c ) return 0;
+        if(j<n){
+            m = j;
+        }else{
+            m = n ;
+        }
+        return m ;
     }
 }
